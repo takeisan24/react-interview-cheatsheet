@@ -181,6 +181,7 @@ export default function App() {
   const [selectedConceptId, setSelectedConceptId] = useState<string>('01-stale-closure');
   const [activeTab, setActiveTab] = useState<'theory' | 'demo' | 'quiz'>('theory');
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, number>>({});
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
 
   const currentConcept = CONCEPTS_DATA.find(c => c.id === selectedConceptId) || CONCEPTS_DATA[0];
 
@@ -191,15 +192,25 @@ export default function App() {
     });
   };
 
+  const toggleTheme = () => {
+    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
+  };
+
   return (
-    <div className="cheatsheet-app">
+    <div className={`cheatsheet-app ${theme}`}>
       {/* HEADER */}
       <header className="app-header">
-        <div className="header-brand">
-          <span className="brand-badge">2026 EDITION</span>
-          <h1>React & JS Interview Cheatsheet</h1>
+        <div>
+          <div className="header-brand">
+            <span className="brand-badge">2026 EDITION</span>
+            <h1>React & JS Interview Cheatsheet</h1>
+          </div>
+          <p className="header-subtitle">Hệ thống Luyện tập & Đóng gói Kiến thức Under The Hood cho Frontend Engineer</p>
         </div>
-        <p className="header-subtitle">Hệ thống Luyện tập & Đóng gói Kiến thức Under The Hood cho Frontend Engineer</p>
+
+        <button className="theme-toggle-btn" onClick={toggleTheme} title="Chuyển đổi giao diện Sáng/Tối">
+          {theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode'}
+        </button>
       </header>
 
       {/* MAIN LAYOUT */}
