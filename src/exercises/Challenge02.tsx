@@ -7,20 +7,20 @@ export default function Challenge02() {
     const tempLogs: string[] = [];
 
     // TODO 1: Hãy đoán thứ tự hiển thị của 4 dòng dưới đây (Dòng nào ra 1st, 2nd, 3rd, 4th?)
-    // Điền dự đoán của bạn vào đây: [Dòng ..., Dòng ..., Dòng ..., Dòng ...]
-    tempLogs.push('🔹 Dòng A: Code đồng bộ (Start)');
+    // Điền dự đoán của bạn vào đây: [Dòng A, Dòng D, Dòng C, Dòng B]
+    tempLogs.push('🔹 Dòng A: Code đồng bộ (Start)'); // Lệnh sync được đưa vào call stack luôn
 
     setTimeout(() => {
-      tempLogs.push('🔸 Dòng B: Macrotask (setTimeout 0ms)');
+      tempLogs.push('🔸 Dòng B: Macrotask (setTimeout 0ms)'); // Lệnh macrotask được đưa vào stack sau khi micro chạy và UI render.
       setLogs([...tempLogs]);
     }, 0);
 
     Promise.resolve().then(() => {
-      tempLogs.push('⭐ Dòng C: Microtask (Promise.then)');
+      tempLogs.push('⭐ Dòng C: Microtask (Promise.then)');// Lệnh microtask được đưa vào stack sau khi call stack clear
       setLogs([...tempLogs]);
     });
 
-    tempLogs.push('🔹 Dòng D: Code đồng bộ (End)');
+    tempLogs.push('🔹 Dòng D: Code đồng bộ (End)'); // Lệnh sync được đưa vào call stack luôn
     setLogs([...tempLogs]);
   };
 
