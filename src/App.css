@@ -286,12 +286,57 @@
   color: #16a34a;
 }
 
-.hood-block ul {
+.hood-block ul, .flow-block ol, .mental-block ul, .trap-block ul {
   margin: 0;
   padding-left: 20px;
   font-size: 13px;
   line-height: 1.6;
   color: var(--text-primary);
+}
+
+.flow-block {
+  background: rgba(37, 99, 235, 0.08);
+  border-color: rgba(37, 99, 235, 0.3);
+}
+
+.flow-block h3 {
+  color: #2563eb;
+}
+
+.mental-block {
+  background: rgba(168, 85, 247, 0.08);
+  border-color: rgba(168, 85, 247, 0.3);
+}
+
+.mental-block h3 {
+  color: #a855f7;
+}
+
+.table-block {
+  background: var(--bg-card);
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+.theory-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+.theory-table th, .theory-table td {
+  border: 1px solid var(--border-color);
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.theory-table th {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  font-weight: 600;
 }
 
 .practice-block {
@@ -323,6 +368,11 @@
   padding: 12px;
   background: var(--bg-hover);
   border-radius: 6px;
+}
+
+.docs-link-box ul {
+  margin: 4px 0 0 0;
+  padding-left: 20px;
 }
 
 .docs-link-box a {

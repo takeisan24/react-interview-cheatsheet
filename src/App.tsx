@@ -18,12 +18,15 @@ interface ConceptData {
   id: string;
   title: string;
   module: string;
-  theory: {
-    problem: string;
+  fullTheory: {
+    issue: string;
     underTheHood: string[];
-    syntaxBestPractice: string;
-    interviewTrap: string;
-    docsLink: string;
+    comparisonTable?: { headers: string[]; rows: string[][] };
+    executionFlow?: string[];
+    bestPractice: string;
+    interviewTrap: string[];
+    mentalModel: string[];
+    docsLinks: { title: string; url: string }[];
   };
   demoComponent: React.ReactNode;
   quiz: QuizQuestion[];
@@ -34,16 +37,25 @@ const CONCEPTS_DATA: ConceptData[] = [
     id: 'challenge-01',
     title: '🎯 THỬ THÁCH #01: Sửa 3 Bugs Thực Tế',
     module: 'HANDS-ON CODE EXERCISE',
-    theory: {
-      problem: 'Bài tập tổng hợp: Mở file src/exercises/Challenge01.tsx trên VS Code để trực tiếp sửa 3 lỗi bug kinh điển.',
+    fullTheory: {
+      issue: 'Bài tập tổng hợp thực hành: Mở file src/exercises/Challenge01.tsx trên VS Code để tự tay sửa 3 lỗi bug kinh điển.',
       underTheHood: [
-        'Bug 1 (Stale Closure): Timer bị kẹt ở số 1 do callback setTimeout/setInterval capture state cũ.',
-        'Bug 2 (State Queue): setCount(score + 1) hai lần liên tiếp chỉ cộng 1 điểm thay vì 2 điểm.',
-        'Bug 3 (Key Trap): key={index} làm tráo đổi ô input khi xóa phần tử đầu mảng.'
+        'Bug 1 (Stale Closure): Timer bị kẹt ở số 1 do callback setInterval capture biến seconds = 0 ban đầu.',
+        'Bug 2 (State Queue & Batching): setCount(score + 1) hai lần liên tiếp chỉ cộng 1 điểm vì cả 2 cùng đọc snapshot score = 0.',
+        'Bug 3 (Key Trap): key={index} làm tráo đổi ô input khi xóa phần tử đầu tiên của mảng.'
       ],
-      syntaxBestPractice: 'Sử dụng Functional Update (prev => prev + 1) và key={item.id} để sửa dứt điểm cả 3 bug.',
-      interviewTrap: 'Đây là dạng bài tập Refactoring / Bug Fixing thường gặp nhất trong các vòng Code Assessment phỏng vấn.',
-      docsLink: 'https://react.dev/learn/queueing-a-series-of-state-updates'
+      bestPractice: 'Sử dụng Functional Update (prev => prev + 1) và key={item.id} để sửa dứt điểm cả 3 bug.',
+      interviewTrap: [
+        'Đây là dạng bài tập Refactoring / Bug Fixing phổ biến nhất trong các vòng Code Assessment phỏng vấn Junior.',
+        'Cần giải thích đúng lý do tại sao dùng prev => prev + 1 lại lấy được state mới nhất trong Queue.'
+      ],
+      mentalModel: [
+        'Tên tham số trong Updater Function (như prev, prevSeconds, s) tùy ý bạn đặt, JS chỉ quan tâm vị trí tham số thứ nhất.',
+        'Nên viết theo chuẩn camelCase (prevSeconds) để giữ code sạch và chuyên nghiệp.'
+      ],
+      docsLinks: [
+        { title: 'React.dev: Queueing a Series of State Updates', url: 'https://react.dev/learn/queueing-a-series-of-state-updates' }
+      ]
     },
     demoComponent: <Challenge01 />,
     quiz: [
@@ -51,11 +63,11 @@ const CONCEPTS_DATA: ConceptData[] = [
         question: 'Muốn sửa Bug 1 (Timer kẹt số 1) trong Challenge01.tsx, bạn sẽ sửa dòng setSeconds(seconds + 1) thành dòng nào?',
         options: [
           'A. setSeconds(seconds + 2)',
-          'B. setSeconds(prev => prev + 1)',
+          'B. setSeconds(prevSeconds => prevSeconds + 1)',
           'C. setSeconds(1)'
         ],
         correctIndex: 1,
-        explanation: 'Chính xác! Dùng Functional Update prev => prev + 1 để lấy state mới nhất từ React State Queue.'
+        explanation: 'Chính xác! Dùng Functional Update (prevSeconds => prevSeconds + 1) để lấy state mới nhất từ React State Queue.'
       }
     ]
   },
@@ -63,16 +75,32 @@ const CONCEPTS_DATA: ConceptData[] = [
     id: '01-stale-closure',
     title: '01. Stale Closure trong useEffect',
     module: 'Module 1: JS Core Under The Hood',
-    theory: {
-      problem: 'Khi dùng setInterval/setTimeout trong useEffect với mảng phụ thuộc rỗng [], biến state bị kẹt ở giá trị khởi tạo ban đầu mãi mãi.',
+    fullTheory: {
+      issue: 'Khi dùng setInterval (hoặc setTimeout, event listener) trong useEffect với mảng phụ thuộc rỗng [], biến state (vd: count) không tăng dần mà bị mắc kẹt ở giá trị 1 mãi mãi.',
       underTheHood: [
-        'Closure trong JS: Hàm callback trong setInterval khi tạo ra ở render 1 đã "chụp ảnh" (capture) giá trị count = 0.',
-        'State is a Snapshot: Biến state trong 1 lần render là hằng số cố định.',
-        'Dependency Array []: Khiến useEffect chỉ chạy 1 lần khi mount, callback không bao giờ được tạo lại để chụp ảnh mới.'
+        'Closure trong JS: Hàm callback trong setInterval khi khởi tạo ở render 1 đã "chụp ảnh" (capture) giá trị count = 0.',
+        'Dependency Array []: Khai báo [] khiến useEffect chỉ chạy đúng 1 lần khi mount. Callback không bao giờ được tạo lại để "chụp" giá trị count mới.',
+        'State is a Snapshot: Biến state trong 1 lần render là hằng số cố định (const count = 0).'
       ],
-      syntaxBestPractice: 'Dùng Functional Update: setCount(prevCount => prevCount + 1). React tự lấy state mới nhất từ Queue.',
-      interviewTrap: 'Đoán nhầm do clearInterval làm mất bộ đếm. Cần giải thích đúng về JS Closure & State Snapshot.',
-      docsLink: 'https://react.dev/learn/state-as-a-snapshot'
+      executionFlow: [
+        'Render 1 (count=0) ➔ Trình duyệt vẽ h1 = 0 ➔ useEffect kích hoạt setInterval.',
+        'setInterval tạo closure ôm biến count=0 ➔ Sau 1s gọi setCount(0 + 1).',
+        'Render 2 (count=1) ➔ Trình duyệt vẽ h1 = 1 ➔ useEffect KHÔNG chạy lại do deps=[].',
+        'Sau 2s: setInterval cũ nổ ➔ Vẫn gọi setCount(0 + 1) ➔ State tiếp tục là 1 ➔ Kẹt số 1 mãi mãi!'
+      ],
+      bestPractice: 'Dùng Functional Update: setCount(prevCount => prevCount + 1). React sẽ tự động truyền giá trị state mới nhất từ Queue vào prevCount, bỏ qua biến count bị kẹt ở closure ngoài.',
+      interviewTrap: [
+        'Đoán nhầm là do hàm clearInterval làm xóa bộ đếm.',
+        'Thêm [count] vào dependency array gây ra chi phí hủy và tạo lại timer liên tục mỗi giây.'
+      ],
+      mentalModel: [
+        'State trong React là Snapshot của từng lần render (hằng số).',
+        'Updater Function (prev => prev + 1) gửi một CÔNG THỨC vào Queue thay vì gửi một GIÁ TRỊ TÍNH SẴN.'
+      ],
+      docsLinks: [
+        { title: 'React.dev: State as a Snapshot', url: 'https://react.dev/learn/state-as-a-snapshot' },
+        { title: 'React.dev: Queueing a Series of State Updates', url: 'https://react.dev/learn/queueing-a-series-of-state-updates' }
+      ]
     },
     demoComponent: <StaleClosureDemo />,
     quiz: [
@@ -92,17 +120,37 @@ const CONCEPTS_DATA: ConceptData[] = [
     id: '02-event-loop',
     title: '02. Event Loop & Micro/Macrotask',
     module: 'Module 1: JS Core Under The Hood',
-    theory: {
-      problem: 'Làm sao JavaScript đơn luồng (Single-threaded) xử lý các tác vụ bất đồng bộ mà không đóng băng UI?',
+    fullTheory: {
+      issue: 'JavaScript là ngôn ngữ đơn luồng (Single-threaded). Làm sao JS xử lý các tác vụ bất đồng bộ (API, Timer) mà không làm đóng băng giao diện?',
       underTheHood: [
-        '1. Call Stack: Chạy code đồng bộ từ trên xuống dưới.',
-        '2. Microtask Queue (Promise.then, async/await): Vét sạch 100% khi Call Stack trống.',
-        '3. UI Render/Paint: Vẽ lại màn hình mỗi 16.6ms (60Hz).',
-        '4. Macrotask Queue (setTimeout, setInterval, I/O): Lấy đúng 1 tác vụ chạy sau khi Microtask rỗng.'
+        '1. Call Stack (Code đồng bộ): Chạy trước tiên, từ trên xuống dưới.',
+        '2. Microtask Queue (Promise.then, queueMicrotask, async/await): Chạy ngay khi Call Stack rỗng. Event Loop sẽ VÉT SẠCH 100% mảng này trước khi chuyển bước.',
+        '3. Render / Paint UI: Trình duyệt cập nhật lại giao diện (mỗi 16.6ms ở màn hình 60Hz).',
+        '4. Macrotask Queue (setTimeout, setInterval, I/O): Chạy SAU KHI Microtask đã rỗng. Mỗi chu kỳ chỉ lấy ĐÚNG 1 TÁC VỤ ra chạy.'
       ],
-      syntaxBestPractice: 'Luôn hiểu rõ Promise (Microtask) chạy TRƯỚC setTimeout (Macrotask). Tránh block Call Stack bằng vòng lặp nặng.',
-      interviewTrap: 'Đoán setTimeout(..., 0) chạy trước Promise.then() hoặc đoán code bên trong new Promise(...) là bất đồng bộ.',
-      docsLink: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Event_loop'
+      comparisonTable: {
+        headers: ['Loại tác vụ', 'Ví dụ điển hình', 'Thứ tự ưu tiên'],
+        rows: [
+          ['Code Đồng Bộ', 'Khai báo biến, vòng lặp for, console.log, thân new Promise()', 'Ưu tiên 1 (Chạy ngay trên Call Stack)'],
+          ['Microtask Queue', 'Promise.then(), async/await, queueMicrotask()', 'Ưu tiên 2 (Vét sạch khi Stack rỗng)'],
+          ['Paint UI', 'Recalculate Style, Reflow Layout, Repaint Pixels', 'Ưu tiên 3 (Mỗi 16.6ms)'],
+          ['Macrotask Queue', 'setTimeout(), setInterval(), Network I/O, User Events', 'Ưu tiên 4 (Lấy 1 tác vụ sau cùng)']
+        ]
+      },
+      bestPractice: 'Hiểu rõ Promise (Microtask) luôn chạy TRƯỚC setTimeout (Macrotask). Tránh block Call Stack bằng vòng lặp nặng vì sẽ chặn bước Paint UI gây đóng băng giao diện.',
+      interviewTrap: [
+        'Đoán setTimeout(..., 0) chạy trước Promise.then() vì có số 0ms.',
+        'Đoán code bên trong thân new Promise(...) là bất đồng bộ (thực chất nó chạy ĐỒNG BỘ ngay lập tức!).'
+      ],
+      mentalModel: [
+        'Call Stack = Thớt làm việc đồng bộ.',
+        'Microtask Queue = Hàng VIP (xử lý hết sạch mới nghỉ).',
+        'Macrotask Queue = Hàng thường (mỗi lần chỉ làm 1 việc).'
+      ],
+      docsLinks: [
+        { title: 'MDN: Event Loop Guide', url: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Event_loop' },
+        { title: 'javascript.info: Event loop microtasks and macrotasks', url: 'https://javascript.info/event-loop' }
+      ]
     },
     demoComponent: <EventLoopDemo />,
     quiz: [
@@ -122,16 +170,35 @@ const CONCEPTS_DATA: ConceptData[] = [
     id: '03-scope-hoisting-tdz',
     title: '03. Scope, Hoisting & TDZ',
     module: 'Module 1: JS Core Under The Hood',
-    theory: {
-      problem: 'Khác biệt giữa var vs let vs const? Tại sao gọi biến trước khi khai báo bằng var ra undefined, còn bằng let thì bị ReferenceError?',
+    fullTheory: {
+      issue: 'Khác biệt giữa var vs let vs const? Tại sao gọi biến trước khi khai báo bằng var thì ra undefined, còn bằng let thì bị ReferenceError?',
       underTheHood: [
-        'Creation Phase: Scan file, nhấc các khai báo biến lên đầu Scope (Hoisting). var gán mặc định = undefined. let/const không gán giá trị (Uninitialized).',
-        'Temporal Dead Zone (TDZ): Khoảng không gian từ đầu Scope tới dòng khai báo let/const. Truy cập ở đây bị ném ReferenceError.',
-        'Block Scope: let/const bị giới hạn trong ngoặc {}. var có Function Scope nên lọt ra ngoài ngoặc {}.'
+        '1. Creation Phase (Khởi tạo): Scan file, nhấc các khai báo biến lên đầu Scope (Hoisting). var gán mặc định = undefined. let/const giữ trạng thái Chưa khởi tạo (Uninitialized).',
+        '2. Execution Phase (Thực thi): Chạy code từng dòng từ trên xuống dưới.',
+        '3. Scope: var có Function Scope (bỏ qua ngoặc {}). let/const có Block Scope (bị giới hạn trong ngoặc {}).'
       ],
-      syntaxBestPractice: 'Ưu tiên dùng const > let > Tuyệt đối không dùng var trong dự án thực tế.',
-      interviewTrap: 'Nghĩ let/const không bị Hoisting (thực ra CÓ bị Hoisting nhưng bị dính TDZ) hoặc nghĩ const làm Object thành Immutable.',
-      docsLink: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/let#temporal_dead_zone_tdz'
+      comparisonTable: {
+        headers: ['Tiêu chí', 'var', 'let', 'const'],
+        rows: [
+          ['Scope', 'Function Scope', 'Block Scope {}', 'Block Scope {}'],
+          ['Hoisting', 'Có (= undefined)', 'Có (Bị dính TDZ)', 'Có (Bị dính TDZ)'],
+          ['Truy cập trước khai báo', 'Ra undefined', 'Báo ReferenceError', 'Báo ReferenceError'],
+          ['Gán lại (Re-assign)', 'Có thể', 'Có thể', '❌ CẤM (TypeError)']
+        ]
+      },
+      bestPractice: 'Ưu tiên const > let > Tuyệt đối KHÔNG dùng var trong dự án thực tế. Nắm rõ Mutability (obj.a = 1 được) vs Re-assignment (obj = {} bị lỗi với const).',
+      interviewTrap: [
+        'Nghĩ let/const không bị Hoisting (thực tế CÓ bị Hoisting nhưng bị chặn bởi TDZ).',
+        'Nghĩ gọi Function Expression trước khai báo bị ReferenceError (thực chất bị TypeError: bar is not a function do var bar = undefined).'
+      ],
+      mentalModel: [
+        'TDZ = Vùng chết tạm thời từ đầu Scope đến dòng khai báo let/const thực sự.',
+        'Function Declaration (function f(){}) hoist cả tên + thân hàm.',
+        'Function Expression (var f = function(){}) chỉ hoist tên f = undefined.'
+      ],
+      docsLinks: [
+        { title: 'MDN: Temporal Dead Zone (TDZ)', url: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/let#temporal_dead_zone_tdz' }
+      ]
     },
     demoComponent: <ScopeHoistingDemo />,
     quiz: [
@@ -151,16 +218,27 @@ const CONCEPTS_DATA: ConceptData[] = [
     id: '04-vdom-reconciliation-fiber',
     title: '04. Virtual DOM & Key Trap',
     module: 'Module 2: React Engine & Re-render Mechanics',
-    theory: {
-      problem: 'Virtual DOM là gì? Tại sao truyền key={index} khi render mảng lại gây bug tráo đổi dữ liệu nghiêm trọng?',
+    fullTheory: {
+      issue: 'Virtual DOM là gì? Tại sao truyền key={index} khi render mảng lại gây bug tráo đổi dữ liệu nghiêm trọng?',
       underTheHood: [
         'Real DOM: Mỗi HTML Element chứa 300+ thuộc tính C++, sửa trực tiếp gây Reflow & Repaint tốn chi phí.',
-        'Virtual DOM: Chỉ là 1 Plain JS Object thuần túy trong RAM đại diện cho UI.',
-        'Reconciliation: Diffing algorithm O(n) so sánh 2 cây VDOM. Nếu trùng key=index khi xóa item đầu mảng, React lầm tưởng item mới chính là item cũ nên giữ nguyên State nội bộ/ô input cũ!'
+        'Virtual DOM: Chỉ là 1 Plain JS Object thuần túy trong RAM đại diện cho UI ({ type: "h1", props: {...} }).',
+        'Reconciliation: Diffing algorithm O(n) so sánh 2 cây VDOM. Nếu trùng key=index khi xóa item đầu mảng, React lầm tưởng item mới chính là item cũ nên giữ nguyên State nội bộ/ô input cũ!',
+        'React Fiber Architecture: Chuyển VDOM thành cấu trúc Linked List, cho phép TẠM DỪNG, CHIA NHỎ và ĐẶT ƯU TIÊN cho các tác vụ re-render.'
       ],
-      syntaxBestPractice: 'Luôn dùng key={item.id} (ID cố định duy nhất của dữ liệu).',
-      interviewTrap: 'Trả lời Virtual DOM luôn nhanh hơn Real DOM (thực ra VDOM tốn RAM giữ cây ảo, lợi ích lớn nhất là Developer Experience & Batching updates).',
-      docsLink: 'https://react.dev/learn/rendering-lists'
+      bestPractice: 'Luôn dùng key={item.id} (ID cố định duy nhất của dữ liệu).',
+      interviewTrap: [
+        'Trả lời Virtual DOM luôn nhanh hơn Real DOM (thực ra VDOM tốn RAM giữ cây ảo, lợi ích lớn nhất là Developer Experience & Batching DOM updates).',
+        'Lạm dụng key={index} cho danh sách có tính năng xóa/sắp xếp.'
+      ],
+      mentalModel: [
+        'VDOM = Bản vẽ thiết kế trên giấy (rất nhẹ). Real DOM = Ngôi nhà bê tông thực tế (rất nặng).',
+        'Fiber = Bộ điều phối giao thông cho phép ngắt/nghỉ ưu tiên cú gõ phím của User.'
+      ],
+      docsLinks: [
+        { title: 'React.dev: Rendering Lists (Keys)', url: 'https://react.dev/learn/rendering-lists' },
+        { title: 'React.dev: Preserving and Resetting State', url: 'https://react.dev/learn/preserving-and-resetting-state' }
+      ]
     },
     demoComponent: <ReconciliationDemo />,
     quiz: [
@@ -180,16 +258,35 @@ const CONCEPTS_DATA: ConceptData[] = [
     id: '05-lifecycle-batching-react18',
     title: '05. Automatic Batching (React 18)',
     module: 'Module 2: React Engine & Re-render Mechanics',
-    theory: {
-      problem: 'State Batching là gì? Sự khác biệt giữa React 17 và React 18 về Batching?',
+    fullTheory: {
+      issue: 'State Batching là gì? Sự khác biệt giữa React 17 và React 18 về Batching?',
       underTheHood: [
         'State Batching: Gom nhiều lệnh setState trong cùng 1 chu kỳ sự kiện thành 1 lượt Re-render duy nhất.',
         'React 17: Chỉ batching trong React Event Handlers đồng bộ. Trong setTimeout/Promise KHÔNG batching (re-render từng dòng).',
         'React 18 Automatic Batching: Gom nhóm TỰ ĐỘNG ở MỌI NƠI (Sync, Async, setTimeout, Promise).'
       ],
-      syntaxBestPractice: 'Dùng flushSync(() => { setState(...) }) khi muốn TẮT Batching và ÉP React Re-render DOM ngay lập tức.',
-      interviewTrap: 'Nghĩ gọi setCount 3 lần trong setTimeout ở React 18 vẫn re-render 3 lần (thực tế React 18 gom thành 1 lần).',
-      docsLink: 'https://react.dev/learn/queueing-a-series-of-state-updates'
+      comparisonTable: {
+        headers: ['Trường hợp gọi setState', 'React 17 (Cũ)', 'React 18 (Automatic Batching)'],
+        rows: [
+          ['onClick Handler đồng bộ', 'Có Batching (1 re-render)', 'Có Batching (1 re-render)'],
+          ['Trong setTimeout / setInterval', '❌ KHÔNG Batching (Re-render từng dòng)', 'Có Batching (1 re-render)'],
+          ['Trong Promise.then() / fetch', '❌ KHÔNG Batching (Re-render từng dòng)', 'Có Batching (1 re-render)'],
+          ['Trong Native addEventListener', '❌ KHÔNG Batching (Re-render từng dòng)', 'Có Batching (1 re-render)']
+        ]
+      },
+      bestPractice: 'Dùng flushSync(() => { setState(...) }) từ react-dom khi muốn TẮT Batching và ÉP React Re-render DOM ngay lập tức.',
+      interviewTrap: [
+        'Nghĩ gọi setCount 3 lần trong setTimeout ở React 18 vẫn re-render 3 lần (thực tế React 18 gom thành 1 lần).',
+        'Nhầm lẫn giữa gán trực tiếp setCount(count + 1) (ra 1) vs Updater Function setCount(c => c + 1) (ra 3).'
+      ],
+      mentalModel: [
+        'Batching = Xe buýt gom hành khách (state updates) đi 1 chuyến thay vì mỗi hành khách đi 1 chuyến taxi riêng.',
+        'flushSync = Xe cấp cứu được đi ngay lập tức không cần chờ gom buýt.'
+      ],
+      docsLinks: [
+        { title: 'React.dev: Queueing a Series of State Updates', url: 'https://react.dev/learn/queueing-a-series-of-state-updates' },
+        { title: 'React 18 Working Group: Automatic Batching', url: 'https://github.com/reactwg/react-18/discussions/21' }
+      ]
     },
     demoComponent: <BatchingDemo />,
     quiz: [
@@ -279,7 +376,7 @@ export default function App() {
               className={`tab-btn ${activeTab === 'theory' ? 'active' : ''}`}
               onClick={() => setActiveTab('theory')}
             >
-              📖 1. Lý thuyết & Syntax
+              📖 1. Lý thuyết & Syntax Chi Tiết
             </button>
             <button
               className={`tab-btn ${activeTab === 'demo' ? 'active' : ''}`}
@@ -295,40 +392,100 @@ export default function App() {
             </button>
           </div>
 
-          {/* TAB 1: THEORY & SYNTAX */}
+          {/* TAB 1: THEORY & SYNTAX (FULL DETAILED VERSION) */}
           {activeTab === 'theory' && (
             <div className="tab-content theory-tab">
               <section className="theory-block problem-block">
-                <h3>❓ 1. Vấn đề là gì? (Problem Statement)</h3>
-                <p>{currentConcept.theory.problem}</p>
+                <h3>❓ 1. Vấn đề cốt lõi (Problem Statement)</h3>
+                <p>{currentConcept.fullTheory.issue}</p>
               </section>
 
               <section className="theory-block hood-block">
                 <h3>🧠 2. Bản chất Under The Hood (Why it happens?)</h3>
                 <ul>
-                  {currentConcept.theory.underTheHood.map((item, idx) => (
+                  {currentConcept.fullTheory.underTheHood.map((item, idx) => (
                     <li key={idx}>{item}</li>
                   ))}
                 </ul>
               </section>
 
+              {/* BẢNG SO SÁNH NẾU CÓ */}
+              {currentConcept.fullTheory.comparisonTable && (
+                <section className="theory-block table-block">
+                  <h3>📊 3. Bảng So Sánh Chi Tiết</h3>
+                  <div className="table-responsive">
+                    <table className="theory-table">
+                      <thead>
+                        <tr>
+                          {currentConcept.fullTheory.comparisonTable.headers.map((h, i) => (
+                            <th key={i}>{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {currentConcept.fullTheory.comparisonTable.rows.map((row, rIdx) => (
+                          <tr key={rIdx}>
+                            {row.map((cell, cIdx) => (
+                              <td key={cIdx}>{cell}</td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+              )}
+
+              {/* LUỒNG VẬN HÀNH NẾU CÓ */}
+              {currentConcept.fullTheory.executionFlow && (
+                <section className="theory-block flow-block">
+                  <h3>🔄 4. Luồng Vận Hành Từng Bước (Execution Flow)</h3>
+                  <ol>
+                    {currentConcept.fullTheory.executionFlow.map((step, sIdx) => (
+                      <li key={sIdx}>{step}</li>
+                    ))}
+                  </ol>
+                </section>
+              )}
+
               <section className="theory-block practice-block">
-                <h3>💡 3. Cú pháp & Best Practice (How to fix?)</h3>
+                <h3>💡 5. Cú pháp & Best Practice (How to fix?)</h3>
                 <div className="code-snippet-box">
-                  <code>{currentConcept.theory.syntaxBestPractice}</code>
+                  <code>{currentConcept.fullTheory.bestPractice}</code>
                 </div>
               </section>
 
+              {currentConcept.fullTheory.mentalModel && (
+                <section className="theory-block mental-block">
+                  <h3>🧩 6. Mental Model (Tư duy ngầm để nhớ lâu)</h3>
+                  <ul>
+                    {currentConcept.fullTheory.mentalModel.map((m, mIdx) => (
+                      <li key={mIdx}>{m}</li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+
               <section className="theory-block trap-block">
-                <h3>⚠️ 4. Bẫy phỏng vấn (Interview Trap & Junior Signal)</h3>
-                <p>{currentConcept.theory.interviewTrap}</p>
+                <h3>⚠️ 7. Bẫy phỏng vấn (Interview Trap & Junior Signal)</h3>
+                <ul>
+                  {currentConcept.fullTheory.interviewTrap.map((trap, tIdx) => (
+                    <li key={tIdx}>{trap}</li>
+                  ))}
+                </ul>
               </section>
 
               <div className="docs-link-box">
-                🔗 <strong>Tài liệu chính thức: </strong>
-                <a href={currentConcept.theory.docsLink} target="_blank" rel="noreferrer">
-                  {currentConcept.theory.docsLink}
-                </a>
+                🔗 <strong>Tài liệu chính thức (React / MDN Docs): </strong>
+                <ul>
+                  {currentConcept.fullTheory.docsLinks.map((link, lIdx) => (
+                    <li key={lIdx}>
+                      <a href={link.url} target="_blank" rel="noreferrer">
+                        {link.title} ({link.url})
+                      </a>
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
           )}
