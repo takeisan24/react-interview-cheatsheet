@@ -6,26 +6,40 @@ export default function Challenge03() {
   const runChallenge = () => {
     const newLogs: string[] = [];
 
-    // 🐛 VẤN ĐỀ 1: Biến x bên dưới đang bị rò rỉ ra ngoài khối `if` (Lọt Scope).
-    // 🎯 MỤC TIÊU: Hãy sửa code sao cho biến x bị nhốt chặt trong khối `if` (đọc ngoài `if` sẽ bắt được lỗi ReferenceError).
-    // ✍️ GIẢI THÍCH: [Viết comment giải thích lý do sửa tại đây]
+    // 🐛 VẤN ĐỀ 1: Biến x (var) bị rò rỉ ra ngoài ngoặc {}, còn let_x và const_x thì không.
+    // 🎯 MỤC TIÊU: Chứng minh let và const tuân thủ Block Scope {}, còn var chỉ có Function Scope.
     if (true) {
-      var x = 'Tôi là var (Lọt ra ngoài ngoặc {})';
+      var var_x = 'Tôi là var (Function Scope - Lọt ra ngoài ngoặc {})';
+      let let_x = 'Tôi là let (Block Scope - Bị nhốt trong ngoặc {})';
+      const const_x = 'Tôi là const (Block Scope - Bị nhốt trong ngoặc {})';
     }
 
+    // 1. var_x chui ra ngoài thành công vì var bỏ qua Block Scope {}
+    newLogs.push(`1. var ngoài ngoặc {}: "${var_x}"`);
+
+    // 2. Thử đọc let_x ở ngoài ngoặc {} ➔ Bị ném lỗi ReferenceError!
     try {
       // @ts-ignore
-      newLogs.push(`1. Biến x ngoài ngoặc: ${x}`);
+      newLogs.push(`2. let ngoài ngoặc: ${let_x}`);
     } catch (e: any) {
-      newLogs.push(`1. ✅ Đã nhốt x trong Block Scope: ${e.message}`);
+      newLogs.push(`2. ✅ let bị nhốt trong Block Scope: ${e.message}`);
     }
 
-    // 🐛 VẤN ĐỀ 2: Vòng lặp bên dưới đang bị lỗi in ra 3, 3, 3 sau 100ms.
-    // 🎯 MỤC TIÊU: Hãy sửa code để kết quả in ra đúng thứ tự 0, 1, 2.
-    // ✍️ GIẢI THÍCH: [Viết comment giải thích tại sao code cũ ra 3, 3, 3 còn code mới ra 0, 1, 2]
-    for (var i = 0; i < 3; i++) {
+    // 3. Thử đọc const_x ở ngoài ngoặc {} ➔ Cũng bị ném lỗi ReferenceError!
+    try {
+      // @ts-ignore
+      newLogs.push(`3. const ngoài ngoặc: ${const_x}`);
+    } catch (e: any) {
+      newLogs.push(`3. ✅ const bị nhốt trong Block Scope: ${e.message}`);
+    }
+
+
+    // 🐛 VẤN ĐỀ 2: Vòng lặp for(var i...) bị lỗi in ra 3, 3, 3 do xài chung 1 ô nhớ i.
+    // 🎯 MỤC TIÊU: Dùng let i để JS Engine tạo 1 ô nhớ i mới tinh cho từng lượt lặp (0, 1, 2).
+    // 💡 LƯU Ý: Không dùng const i trong vòng lặp for(;;) vì i++ sẽ ném lỗi TypeError (gán lại hằng số).
+    for (let i = 0; i < 3; i++) {
       setTimeout(() => {
-        newLogs.push(`2. Kết quả vòng lặp i = ${i}`);
+        newLogs.push(`4. Vòng lặp let i = ${i} (Mỗi lượt 1 ô nhớ riêng)`);
         setLogs([...newLogs]);
       }, 100);
     }
@@ -35,7 +49,7 @@ export default function Challenge03() {
     <div style={{ maxWidth: '650px', margin: '20px auto', padding: '20px', border: '2px dashed #3B82F6', borderRadius: '12px', textAlign: 'left' }}>
       <h2 style={{ color: '#3B82F6', marginTop: 0 }}>🎯 THỬ THÁCH #03: FIX LỖI VAR LEAK & LOOP SCOPE</h2>
       <p style={{ fontSize: '13px', color: '#64748B' }}>
-        👉 Mở file <code>src/exercises/Challenge03.tsx</code> trên VS Code để sửa lỗi var leak trong khối if và vòng lặp for!
+        👉 Bấm nút bên dưới để xem sự khác biệt giữa var (Function Scope) và let/const (Block Scope)!
       </p>
 
       <button onClick={runChallenge} style={{ padding: '8px 14px', backgroundColor: '#2563EB', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
@@ -49,7 +63,7 @@ export default function Challenge03() {
         ) : (
           <ul style={{ paddingLeft: '20px', margin: 0, lineHeight: '1.8' }}>
             {logs.map((log, i) => (
-              <li key={i} style={{ color: log.includes('lọt') || log.includes('3') ? '#F87171' : '#4ADE80' }}>
+              <li key={i} style={{ color: log.includes('✅') ? '#4ADE80' : '#FACC15' }}>
                 {log}
               </li>
             ))}
