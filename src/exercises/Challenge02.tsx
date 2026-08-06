@@ -6,21 +6,21 @@ export default function Challenge02() {
   const runChallenge = () => {
     const tempLogs: string[] = [];
 
-    // TODO 1: Hãy đoán thứ tự hiển thị của 4 dòng log bên dưới trước khi bấm nút!
-    // Viết dự đoán thứ tự của bạn vào comment này: [...]
-    tempLogs.push('1. Code đồng bộ: Start');
+    // TODO 1: Hãy đoán thứ tự hiển thị của 4 dòng dưới đây (Dòng nào ra 1st, 2nd, 3rd, 4th?)
+    // Điền dự đoán của bạn vào đây: [Dòng ..., Dòng ..., Dòng ..., Dòng ...]
+    tempLogs.push('🔹 Dòng A: Code đồng bộ (Start)');
 
     setTimeout(() => {
-      tempLogs.push('4. Macrotask: setTimeout 0ms');
+      tempLogs.push('🔸 Dòng B: Macrotask (setTimeout 0ms)');
       setLogs([...tempLogs]);
     }, 0);
 
     Promise.resolve().then(() => {
-      tempLogs.push('3. Microtask: Promise.then()');
+      tempLogs.push('⭐ Dòng C: Microtask (Promise.then)');
       setLogs([...tempLogs]);
     });
 
-    tempLogs.push('2. Code đồng bộ: End');
+    tempLogs.push('🔹 Dòng D: Code đồng bộ (End)');
     setLogs([...tempLogs]);
   };
 
