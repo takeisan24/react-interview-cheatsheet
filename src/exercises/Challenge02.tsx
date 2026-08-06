@@ -6,21 +6,24 @@ export default function Challenge02() {
   const runChallenge = () => {
     const tempLogs: string[] = [];
 
-    // TODO 1: Hãy đoán thứ tự hiển thị của 4 dòng dưới đây (Dòng nào ra 1st, 2nd, 3rd, 4th?)
-    // Điền dự đoán của bạn vào đây: [Dòng A, Dòng D, Dòng C, Dòng B]
-    tempLogs.push('🔹 Dòng A: Code đồng bộ (Start)'); // Lệnh sync được đưa vào call stack luôn
+    // 🎯 DỰ ĐOÁN THỨ TỰ THỰC THI (Call Stack Sync -> Microtask -> Macrotask)
+    tempLogs.push('🔹 Dòng A: Code đồng bộ (Start)');
 
     setTimeout(() => {
-      tempLogs.push('🔸 Dòng B: Macrotask (setTimeout 0ms)'); // Lệnh macrotask được đưa vào stack sau khi micro chạy và UI render.
+      tempLogs.push('🔸 Dòng B: Macrotask (setTimeout 0ms)');
       setLogs([...tempLogs]);
     }, 0);
 
-    Promise.resolve().then(() => {
-      tempLogs.push('⭐ Dòng C: Microtask (Promise.then)');// Lệnh microtask được đưa vào stack sau khi call stack clear
+    new Promise<void>((resolve) => {
+      // 💡 BẪY PHỎNG VẤN: Thân của new Promise() chạy ĐỒNG BỘ trên Call Stack ngay lập tức!
+      tempLogs.push('⚡ Dòng C: Thân new Promise() (Chạy ĐỒNG BỘ trên Call Stack!)');
+      resolve();
+    }).then(() => {
+      tempLogs.push('⭐ Dòng D: Microtask (.then() của Promise)');
       setLogs([...tempLogs]);
     });
 
-    tempLogs.push('🔹 Dòng D: Code đồng bộ (End)'); // Lệnh sync được đưa vào call stack luôn
+    tempLogs.push('🔹 Dòng E: Code đồng bộ (End)');
     setLogs([...tempLogs]);
   };
 
@@ -28,7 +31,7 @@ export default function Challenge02() {
     <div style={{ maxWidth: '650px', margin: '20px auto', padding: '20px', border: '2px dashed #3B82F6', borderRadius: '12px', textAlign: 'left' }}>
       <h2 style={{ color: '#3B82F6', marginTop: 0 }}>🎯 THỬ THÁCH #02: DỰ ĐOÁN THỨ TỰ EVENT LOOP</h2>
       <p style={{ fontSize: '13px', color: '#64748B' }}>
-        👉 Mở file <code>src/exercises/Challenge02.tsx</code> trên VS Code để đọc code và điền thứ tự dự đoán vào comment TODO 1!
+        👉 Bấm nút bên dưới để thực thi và quan sát thứ tự Call Stack, Promise Body (Sync), Microtask và Macrotask!
       </p>
 
       <button onClick={runChallenge} style={{ padding: '8px 14px', backgroundColor: '#2563EB', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
@@ -42,7 +45,7 @@ export default function Challenge02() {
         ) : (
           <ol style={{ paddingLeft: '20px', margin: 0, lineHeight: '1.8' }}>
             {logs.map((log, i) => (
-              <li key={i} style={{ color: log.includes('Microtask') ? '#4ADE80' : log.includes('Macrotask') ? '#F87171' : '#FACC15' }}>
+              <li key={i} style={{ color: log.includes('Microtask') ? '#4ADE80' : log.includes('Macrotask') ? '#F87171' : log.includes('thân new Promise') ? '#FACC15' : '#60A5FA' }}>
                 {log}
               </li>
             ))}
