@@ -28,8 +28,10 @@ export default function Challenge04() {
       </button>
 
       <div>
+        {/* 🐛 VẤN ĐỀ: Khi bấm xóa người dùng ở đầu mảng, ô input bị tráo đổi dữ liệu do dùng key sai. */}
+        {/* 🎯 MỤC TIÊU: Hãy sửa thuộc tính key={index} bên dưới để định danh đúng từng item trong mảng. */}
+        {/* ✍️ GIẢI THÍCH: [Viết comment giải thích tại sao sửa key lại fix được bug] */}
         {users.map((user, index) => (
-          // TODO 1: Hãy sửa thuộc tính key={index} ở dòng dưới đây thành key={user.uid} chuẩn!
           <div key={index} style={{ marginBottom: '10px', padding: '10px', background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '6px' }}>
             <span><strong>{user.name}</strong>: </span>
             <input type="text" placeholder="Gõ vai trò vào đây..." />

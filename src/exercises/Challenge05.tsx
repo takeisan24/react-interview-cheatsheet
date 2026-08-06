@@ -5,9 +5,10 @@ export default function Challenge05() {
   const [count, setCount] = useState(0);
   const [renderCount, setRenderCount] = useState(1);
 
-  // TODO 1: Hãy bọc các lệnh setCount bên dưới bằng hàm flushSync(() => { ... }) từ react-dom để ép React Re-render ngay lập tức 2 lần tách biệt!
+  // 🐛 VẤN ĐỀ: Hàm handleForceRender() hiện tại đang bị React 18 Automatic Batching gom lại ➔ Số lần Re-render chỉ tăng 1.
+  // 🎯 MỤC TIÊU: Hãy dùng API thích hợp để ÉP React 18 Re-render ngay lập tức 2 lần tách biệt giữa 2 đợt update state!
+  // ✍️ GIẢI THÍCH: [Viết comment giải thích tại sao API này lại tắt được Batching]
   const handleForceRender = () => {
-    // Sửa code ở đây: Bọc từng đợt update bằng flushSync(...)
     setCount(c => c + 1);
     setRenderCount(r => r + 1);
 

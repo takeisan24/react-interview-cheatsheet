@@ -6,7 +6,9 @@ export default function Challenge03() {
   const runChallenge = () => {
     const newLogs: string[] = [];
 
-    // TODO 1: Hãy sửa từ khóa 'var' bên dưới thành 'let' hoặc 'const' để biến x không bị lọt ra ngoài khối if!
+    // 🐛 VẤN ĐỀ 1: Biến x bên dưới đang bị rò rỉ ra ngoài khối `if` (Lọt Scope).
+    // 🎯 MỤC TIÊU: Hãy sửa code sao cho biến x bị nhốt chặt trong khối `if` (đọc ngoài `if` sẽ bắt được lỗi ReferenceError).
+    // ✍️ GIẢI THÍCH: [Viết comment giải thích lý do sửa tại đây]
     if (true) {
       var x = 'Tôi là var (Lọt ra ngoài ngoặc {})';
     }
@@ -18,7 +20,9 @@ export default function Challenge03() {
       newLogs.push(`1. ✅ Đã nhốt x trong Block Scope: ${e.message}`);
     }
 
-    // TODO 2: Hãy sửa từ khóa 'var i' trong vòng lặp for bên dưới thành 'let i' để in ra 0, 1, 2 thay vì 3, 3, 3!
+    // 🐛 VẤN ĐỀ 2: Vòng lặp bên dưới đang bị lỗi in ra 3, 3, 3 sau 100ms.
+    // 🎯 MỤC TIÊU: Hãy sửa code để kết quả in ra đúng thứ tự 0, 1, 2.
+    // ✍️ GIẢI THÍCH: [Viết comment giải thích tại sao code cũ ra 3, 3, 3 còn code mới ra 0, 1, 2]
     for (var i = 0; i < 3; i++) {
       setTimeout(() => {
         newLogs.push(`2. Kết quả vòng lặp i = ${i}`);
