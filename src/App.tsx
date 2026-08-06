@@ -4,6 +4,7 @@ import EventLoopDemo from './concepts/02-event-loop/Demo';
 import ScopeHoistingDemo from './concepts/03-scope-hoisting-tdz/Demo';
 import ReconciliationDemo from './concepts/04-vdom-reconciliation-fiber/Demo';
 import BatchingDemo from './concepts/05-lifecycle-batching-react18/Demo';
+import Challenge01 from './exercises/Challenge01';
 import './App.css';
 
 interface QuizQuestion {
@@ -29,6 +30,35 @@ interface ConceptData {
 }
 
 const CONCEPTS_DATA: ConceptData[] = [
+  {
+    id: 'challenge-01',
+    title: '🎯 THỬ THÁCH #01: Sửa 3 Bugs Thực Tế',
+    module: 'HANDS-ON CODE EXERCISE',
+    theory: {
+      problem: 'Bài tập tổng hợp: Mở file src/exercises/Challenge01.tsx trên VS Code để trực tiếp sửa 3 lỗi bug kinh điển.',
+      underTheHood: [
+        'Bug 1 (Stale Closure): Timer bị kẹt ở số 1 do callback setTimeout/setInterval capture state cũ.',
+        'Bug 2 (State Queue): setCount(score + 1) hai lần liên tiếp chỉ cộng 1 điểm thay vì 2 điểm.',
+        'Bug 3 (Key Trap): key={index} làm tráo đổi ô input khi xóa phần tử đầu mảng.'
+      ],
+      syntaxBestPractice: 'Sử dụng Functional Update (prev => prev + 1) và key={item.id} để sửa dứt điểm cả 3 bug.',
+      interviewTrap: 'Đây là dạng bài tập Refactoring / Bug Fixing thường gặp nhất trong các vòng Code Assessment phỏng vấn.',
+      docsLink: 'https://react.dev/learn/queueing-a-series-of-state-updates'
+    },
+    demoComponent: <Challenge01 />,
+    quiz: [
+      {
+        question: 'Muốn sửa Bug 1 (Timer kẹt số 1) trong Challenge01.tsx, bạn sẽ sửa dòng setSeconds(seconds + 1) thành dòng nào?',
+        options: [
+          'A. setSeconds(seconds + 2)',
+          'B. setSeconds(prev => prev + 1)',
+          'C. setSeconds(1)'
+        ],
+        correctIndex: 1,
+        explanation: 'Chính xác! Dùng Functional Update prev => prev + 1 để lấy state mới nhất từ React State Queue.'
+      }
+    ]
+  },
   {
     id: '01-stale-closure',
     title: '01. Stale Closure trong useEffect',
