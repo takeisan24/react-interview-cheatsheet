@@ -4,7 +4,12 @@ import EventLoopDemo from './concepts/02-event-loop/Demo';
 import ScopeHoistingDemo from './concepts/03-scope-hoisting-tdz/Demo';
 import ReconciliationDemo from './concepts/04-vdom-reconciliation-fiber/Demo';
 import BatchingDemo from './concepts/05-lifecycle-batching-react18/Demo';
+
 import Challenge01 from './exercises/Challenge01';
+import Challenge02 from './exercises/Challenge02';
+import Challenge03 from './exercises/Challenge03';
+import Challenge04 from './exercises/Challenge04';
+import Challenge05 from './exercises/Challenge05';
 import './App.css';
 
 interface QuizQuestion {
@@ -25,7 +30,7 @@ interface ConceptData {
     executionFlow?: string[];
     bestPractice: string;
     interviewTrap: string[];
-    mentalModel: string[];
+    mentalModel?: string[];
     docsLinks: { title: string; url: string }[];
   };
   demoComponent: React.ReactNode;
@@ -33,44 +38,7 @@ interface ConceptData {
 }
 
 const CONCEPTS_DATA: ConceptData[] = [
-  {
-    id: 'challenge-01',
-    title: '🎯 THỬ THÁCH #01: Sửa 3 Bugs Thực Tế',
-    module: 'HANDS-ON CODE EXERCISE',
-    fullTheory: {
-      issue: 'Bài tập tổng hợp thực hành: Mở file src/exercises/Challenge01.tsx trên VS Code để tự tay sửa 3 lỗi bug kinh điển.',
-      underTheHood: [
-        'Bug 1 (Stale Closure): Timer bị kẹt ở số 1 do callback setInterval capture biến seconds = 0 ban đầu.',
-        'Bug 2 (State Queue & Batching): setCount(score + 1) hai lần liên tiếp chỉ cộng 1 điểm vì cả 2 cùng đọc snapshot score = 0.',
-        'Bug 3 (Key Trap): key={index} làm tráo đổi ô input khi xóa phần tử đầu tiên của mảng.'
-      ],
-      bestPractice: 'Sử dụng Functional Update (prev => prev + 1) và key={item.id} để sửa dứt điểm cả 3 bug.',
-      interviewTrap: [
-        'Đây là dạng bài tập Refactoring / Bug Fixing phổ biến nhất trong các vòng Code Assessment phỏng vấn Junior.',
-        'Cần giải thích đúng lý do tại sao dùng prev => prev + 1 lại lấy được state mới nhất trong Queue.'
-      ],
-      mentalModel: [
-        'Tên tham số trong Updater Function (như prev, prevSeconds, s) tùy ý bạn đặt, JS chỉ quan tâm vị trí tham số thứ nhất.',
-        'Nên viết theo chuẩn camelCase (prevSeconds) để giữ code sạch và chuyên nghiệp.'
-      ],
-      docsLinks: [
-        { title: 'React.dev: Queueing a Series of State Updates', url: 'https://react.dev/learn/queueing-a-series-of-state-updates' }
-      ]
-    },
-    demoComponent: <Challenge01 />,
-    quiz: [
-      {
-        question: 'Muốn sửa Bug 1 (Timer kẹt số 1) trong Challenge01.tsx, bạn sẽ sửa dòng setSeconds(seconds + 1) thành dòng nào?',
-        options: [
-          'A. setSeconds(seconds + 2)',
-          'B. setSeconds(prevSeconds => prevSeconds + 1)',
-          'C. setSeconds(1)'
-        ],
-        correctIndex: 1,
-        explanation: 'Chính xác! Dùng Functional Update (prevSeconds => prevSeconds + 1) để lấy state mới nhất từ React State Queue.'
-      }
-    ]
-  },
+  // LESSONS
   {
     id: '01-stale-closure',
     title: '01. Stale Closure trong useEffect',
@@ -301,6 +269,138 @@ const CONCEPTS_DATA: ConceptData[] = [
         explanation: 'Chính xác! flushSync(() => { setState(...) }) sẽ ép React thực hiện re-render và update DOM ngay lập tức.'
       }
     ]
+  },
+
+  // HANDS-ON EXERCISES SUITE
+  {
+    id: 'challenge-01',
+    title: '🎯 THỬ THÁCH #01: Sửa 3 Bugs Tổng Hợp',
+    module: 'HANDS-ON EXERCISES SUITE',
+    fullTheory: {
+      issue: 'Bài tập tổng hợp thực hành: Mở file src/exercises/Challenge01.tsx trên VS Code để tự tay sửa 3 lỗi bug kinh điển.',
+      underTheHood: [
+        'Bug 1 (Stale Closure): Timer kẹt ở số 1 do callback setTimeout/setInterval capture biến seconds = 0.',
+        'Bug 2 (State Queue & Batching): setCount(score + 1) 2 lần liên tiếp chỉ cộng 1 điểm.',
+        'Bug 3 (Key Trap): key={index} làm tráo đổi ô input khi xóa phần tử đầu mảng.'
+      ],
+      bestPractice: 'Sử dụng Functional Update (prev => prev + 1) và key={item.id} để sửa dứt điểm cả 3 bug.',
+      interviewTrap: [
+        'Bài tập Refactoring / Bug Fixing phổ biến nhất trong các vòng Code Assessment.'
+      ],
+      docsLinks: [
+        { title: 'React.dev: Queueing State Updates', url: 'https://react.dev/learn/queueing-a-series-of-state-updates' }
+      ]
+    },
+    demoComponent: <Challenge01 />,
+    quiz: [
+      {
+        question: 'Sửa Bug 1 (Timer kẹt số 1) trong Challenge01.tsx bằng cách nào?',
+        options: ['A. setSeconds(seconds + 2)', 'B. setSeconds(prev => prev + 1)', 'C. setSeconds(1)'],
+        correctIndex: 1,
+        explanation: 'Chính xác! Dùng Functional Update (prev => prev + 1) để lấy state mới nhất từ React State Queue.'
+      }
+    ]
+  },
+  {
+    id: 'challenge-02',
+    title: '🎯 THỬ THÁCH #02: Dự Đoán Event Loop',
+    module: 'HANDS-ON EXERCISES SUITE',
+    fullTheory: {
+      issue: 'Mở file src/exercises/Challenge02.tsx để đọc code và điền thứ tự dự đoán in ra của Synchronous vs Microtask vs Macrotask!',
+      underTheHood: [
+        'Synchronous Code (Call Stack) chạy trước ➔ Promise.then() (Microtask Queue) chạy tiếp ➔ setTimeout 0ms (Macrotask Queue) chạy sau cùng.'
+      ],
+      bestPractice: 'Luôn ghi nhớ thứ tự: Synchronous -> Microtask -> Paint UI -> Macrotask.',
+      interviewTrap: ['Đoán setTimeout 0ms chạy trước Promise.then() vì lầm tưởng 0ms là chạy ngay lập tức.'],
+      docsLinks: [
+        { title: 'MDN: Event Loop Guide', url: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Event_loop' }
+      ]
+    },
+    demoComponent: <Challenge02 />,
+    quiz: [
+      {
+        question: 'Thứ tự đúng của Challenge02 khi bấm nút là gì?',
+        options: ['A. 1 -> 4 -> 3 -> 2', 'B. 1 -> 2 -> 3 -> 4', 'C. 1 -> 3 -> 4 -> 2'],
+        correctIndex: 0,
+        explanation: 'Chính xác! 1 và 2 là code đồng bộ -> 3 là Microtask (Promise) -> 4 là Macrotask (setTimeout).'
+      }
+    ]
+  },
+  {
+    id: 'challenge-03',
+    title: '🎯 THỬ THÁCH #03: Fix Lỗi Scope & Hoisting',
+    module: 'HANDS-ON EXERCISES SUITE',
+    fullTheory: {
+      issue: 'Mở file src/exercises/Challenge03.tsx để sửa từ khóa var thành let/const giúp nhốt biến trong Block Scope và in ra đúng 0, 1, 2 trong vòng lặp for!',
+      underTheHood: [
+        'var có Function Scope nên bị leak ra ngoài ngoặc {} của if và bị dùng chung 1 biến i trong vòng lặp for.',
+        'let có Block Scope giúp nhốt biến trong ngoặc {} và tạo ô nhớ độc lập cho từng lượt lặp for.'
+      ],
+      bestPractice: 'Thay var x bằng let/const x và thay for(var i...) bằng for(let i...).',
+      interviewTrap: ['Nghĩ var i trong vòng lặp for có Block Scope.'],
+      docsLinks: [
+        { title: 'MDN: Temporal Dead Zone (TDZ)', url: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/let#temporal_dead_zone_tdz' }
+      ]
+    },
+    demoComponent: <Challenge03 />,
+    quiz: [
+      {
+        question: 'Sửa var i trong vòng lặp for thành let i giúp giải quyết vấn đề gì?',
+        options: ['A. Giúp vòng lặp chạy nhanh hơn', 'B. Tạo ô nhớ i độc lập cho từng lượt lặp thay vì dùng chung 1 biến var i', 'C. Làm cho setTimeout nổ ngay lập tức'],
+        correctIndex: 1,
+        explanation: 'Chính xác! let có Block Scope giúp binding biến i mới cho mỗi lượt lặp.'
+      }
+    ]
+  },
+  {
+    id: 'challenge-04',
+    title: '🎯 THỬ THÁCH #04: Fix Bẫy Key Reconciliation',
+    module: 'HANDS-ON EXERCISES SUITE',
+    fullTheory: {
+      issue: 'Mở file src/exercises/Challenge04.tsx để sửa key={index} thành key={user.uid} tránh lỗi tráo ô input khi xóa người dùng!',
+      underTheHood: [
+        'key={index} làm React nhầm lẫn phần tử mới với phần tử cũ khi mảng bị biến đổi index ➔ gán nhầm State/input của phần tử bị xóa cho phần tử bên dưới.'
+      ],
+      bestPractice: 'Luôn dùng key={user.uid} (ID cố định duy nhất).',
+      interviewTrap: ['Lạm dụng index làm key cho danh sách có tính năng thêm/xóa.'],
+      docsLinks: [
+        { title: 'React.dev: Rendering Lists', url: 'https://react.dev/learn/rendering-lists' }
+      ]
+    },
+    demoComponent: <Challenge04 />,
+    quiz: [
+      {
+        question: 'Thuộc tính key chuẩn khi render danh sách nên dùng giá trị nào?',
+        options: ['A. key={index}', 'B. key={Math.random()}', 'C. key={item.id}'],
+        correctIndex: 2,
+        explanation: 'Chính xác! Luôn dùng ID cố định duy nhất đại diện cho item dữ liệu.'
+      }
+    ]
+  },
+  {
+    id: 'challenge-05',
+    title: '🎯 THỬ THÁCH #05: Tắt Batching với flushSync',
+    module: 'HANDS-ON EXERCISES SUITE',
+    fullTheory: {
+      issue: 'Mở file src/exercises/Challenge05.tsx bọc các lệnh update state bằng flushSync(() => { ... }) để ép React 18 Re-render ngay lập tức 2 lần tách biệt!',
+      underTheHood: [
+        'flushSync() ngắt cơ chế Automatic Batching và bắt React Fiber thực hiện Render Phase + Commit Phase ngay tại thời điểm gọi.'
+      ],
+      bestPractice: 'Dùng flushSync khi thực sự cần đọc kích thước DOM mới nhất trước dòng code tiếp theo.',
+      interviewTrap: ['Lạm dụng flushSync ở mọi nơi gây lãng phí hiệu năng re-render.'],
+      docsLinks: [
+        { title: 'React 18 Working Group: Automatic Batching', url: 'https://github.com/reactwg/react-18/discussions/21' }
+      ]
+    },
+    demoComponent: <Challenge05 />,
+    quiz: [
+      {
+        question: 'Hàm flushSync lấy từ gói nào?',
+        options: ['A. react', 'B. react-dom', 'C. react-router-dom'],
+        correctIndex: 1,
+        explanation: 'Chính xác! flushSync là API được xuất từ gói react-dom.'
+      }
+    ]
   }
 ];
 
@@ -344,9 +444,9 @@ export default function App() {
       <div className="app-container">
         {/* SIDEBAR NAVIGATION */}
         <aside className="app-sidebar">
-          <div className="sidebar-section-title">MASTER ROADMAP (5/12 SESSIONS)</div>
+          <div className="sidebar-section-title">ROADMAP LESSONS (5/12 SESSIONS)</div>
           <nav className="concept-menu">
-            {CONCEPTS_DATA.map((concept) => (
+            {CONCEPTS_DATA.filter(c => !c.id.startsWith('challenge')).map((concept) => (
               <button
                 key={concept.id}
                 className={`menu-item ${concept.id === selectedConceptId ? 'active' : ''}`}
@@ -356,6 +456,23 @@ export default function App() {
                 }}
               >
                 <div className="menu-item-module">{concept.module.split(':')[0]}</div>
+                <div className="menu-item-title">{concept.title}</div>
+              </button>
+            ))}
+          </nav>
+
+          <div className="sidebar-section-title" style={{ marginTop: '20px' }}>🎯 HANDS-ON EXERCISES SUITE</div>
+          <nav className="concept-menu">
+            {CONCEPTS_DATA.filter(c => c.id.startsWith('challenge')).map((concept) => (
+              <button
+                key={concept.id}
+                className={`menu-item ${concept.id === selectedConceptId ? 'active' : ''}`}
+                onClick={() => {
+                  setSelectedConceptId(concept.id);
+                  setActiveTab('theory');
+                }}
+              >
+                <div className="menu-item-module" style={{ color: '#F59E0B' }}>PRACTICE EXERCISE</div>
                 <div className="menu-item-title">{concept.title}</div>
               </button>
             ))}
