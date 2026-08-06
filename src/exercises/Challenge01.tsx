@@ -12,8 +12,8 @@ export default function Challenge01() {
   useEffect(() => {
     const timer = setInterval(() => {
       // TODO 1: Hãy sửa dòng dưới đây để timer tăng đều 1, 2, 3... thay vì bị kẹt ở số 1!
-      setSeconds(seconds + 1);
-    }, 1000);
+      setSeconds(prevseconds => prevseconds + 1); // Thêm prev sẽ giúp cho setInterval luôn snapshot giá trị trước đó của state
+    }, 1000); // Cái này gọi là Functional Update
 
     return () => clearInterval(timer);
   }, []);
@@ -23,8 +23,8 @@ export default function Challenge01() {
 
   const handleDoubleScore = () => {
     // TODO 2: Bấm nút này mong muốn cộng 2 điểm (+2), nhưng hiện tại chỉ tăng 1 điểm. Hãy sửa!
-    setScore(score + 1);
-    setScore(score + 1);
+    setScore(score => score + 1);
+    setScore(score => score + 1); // Mặc dù chỉ cần 1 dòng nhưng nếu như dùng React phiên bản mới thì điều đó không cần thiết phải xóa, để đó sẽ hơi trash code nên xóa hay không tùy vào dev
   };
 
   // 🐛 BUG 3: List Rendering Key Trap
@@ -64,10 +64,11 @@ export default function Challenge01() {
         <button onClick={deleteFirstTodo} style={{ marginBottom: '12px', padding: '6px 12px', cursor: 'pointer' }}>
           🗑️ Xóa Todo đầu tiên
         </button>
-        
-        {todos.map((todo, index) => (
+
+        {todos.map((todo) => (
           // TODO 3: Hãy sửa thuộc tính key={index} ở dòng dưới thành key chuẩn để không bị tráo ô input!
-          <div key={index} style={{ marginBottom: '8px' }}>
+          // Bắt buộc là khi render ra danh sách, phải dùng id của danh sách, không dùng index (chỉ mục) của danh sách
+          <div key={todo.id} style={{ marginBottom: '8px' }}>
             <span>{todo.text}: </span>
             <input type="text" placeholder="Gõ ghi chú vào đây..." />
           </div>
