@@ -13,6 +13,7 @@ import Challenge04 from './exercises/Challenge04';
 import Challenge05 from './exercises/Challenge05';
 import Challenge06 from './exercises/Challenge06';
 
+import MasterScratch from './scratch/MasterScratch';
 import Scratch01 from './scratch/Scratch01';
 import Scratch02 from './scratch/Scratch02';
 import Scratch03 from './scratch/Scratch03';
@@ -489,6 +490,26 @@ const CONCEPTS_DATA: ConceptData[] = [
 
   // BUILD FROM SCRATCH SUITE (LEVEL 2)
   {
+    id: 'scratch-master',
+    title: '🏆 Master Integrated Scratch (Session 01-05 in 1)',
+    module: 'BUILD FROM SCRATCH SUITE',
+    fullTheory: {
+      issue: 'Mở file src/scratch/MasterScratch.tsx và tự tay gõ ứng dụng tích hợp trọn bộ kiến thức từ Session 01 đến Session 05 trong 1 file duy nhất!',
+      underTheHood: [
+        'Session 01: Timer Stale Closure (setSeconds(prev => prev + 1)).',
+        'Session 02: Event Loop prediction (Call Stack -> Microtask -> Macrotask).',
+        'Session 03: Scope & Loop isolation (let/const vs var).',
+        'Session 04: VDOM & Reconciliation Key (key={task.id}).',
+        'Session 05: State Queue Accumulation (setScore(s => s + 1)).'
+      ],
+      bestPractice: 'Tự gõ ứng dụng tích hợp từ trang trắng để ghi nhớ liên kết các bài học.',
+      interviewTrap: ['Kiểm tra khả năng thiết kế component độc lập chuẩn Senior.'],
+      docsLinks: [{ title: 'React.dev: Thinking in React', url: 'https://react.dev/learn/thinking-in-react' }]
+    },
+    demoComponent: <MasterScratch />,
+    quiz: []
+  },
+  {
     id: 'scratch-01',
     title: '✍️ Scratch 01: Stale Closure Timer',
     module: 'BUILD FROM SCRATCH SUITE',
@@ -657,7 +678,7 @@ export default function App() {
           {/* CONCEPT HEADER */}
           <div className="concept-header-card">
             <span className="module-tag">{currentConcept.module}</span>
-            <h2>{currentConcept.title}</h2>
+            現 <h2>{currentConcept.title}</h2>
           </div>
 
           {/* TAB SWITCHER */}

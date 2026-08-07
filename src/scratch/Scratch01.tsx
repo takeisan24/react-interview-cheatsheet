@@ -13,9 +13,9 @@ export default function Scratch01() {
     const timer = setInterval(() => {
       setSeconds(prev => prev + 1); // Functional Update
     }, 1000);
-    
+
     return () => clearInterval(timer); // Bắt buộc phải có cleanup function để tránh rò rỉ RAM
-  }, [seconds]);
+  }, [])
 
   return (
     <div style={{ padding: '20px', border: '2px dashed #10B981', borderRadius: '8px', textAlign: 'left' }}>
