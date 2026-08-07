@@ -4,13 +4,23 @@
 // 2. Đảm bảo timer hoạt động chuẩn 1, 2, 3... mà KHÔNG BỊ KẸT ở số 1 (dùng đúng Functional Update).
 // 3. Đảm bảo có cleanup function hủy setInterval khi unmount.
 
+import { useEffect, useState } from "react";
+
 export default function Scratch01() {
-  // ✍️ GÕ CODE CỦA BẠN VÀO ĐÂY:
+  const [seconds, setSeconds] = useState(0); // khởi tạo state
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSeconds(prev => prev + 1); // Functional Update
+    }, 1000);
+    
+    return () => clearInterval(timer); // Bắt buộc phải có cleanup function để tránh rò rỉ RAM
+  }, [seconds]);
 
   return (
     <div style={{ padding: '20px', border: '2px dashed #10B981', borderRadius: '8px', textAlign: 'left' }}>
       <h3 style={{ color: '#10B981', marginTop: 0 }}>✍️ Scratch 01: Stale Closure Timer</h3>
-      <p style={{ color: '#64748B', fontSize: '13px' }}>Hãy mở file <code>src/scratch/Scratch01.tsx</code> và tự tay gõ logic từ trang trắng!</p>
+      <p style={{ color: '#64748B', fontSize: '13px' }}>Số giây hiện tại: <strong>{seconds}</strong> giây</p>
     </div>
   );
 }
