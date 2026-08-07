@@ -12,6 +12,12 @@ import Challenge03 from './exercises/Challenge03';
 import Challenge04 from './exercises/Challenge04';
 import Challenge05 from './exercises/Challenge05';
 import Challenge06 from './exercises/Challenge06';
+
+import Scratch01 from './scratch/Scratch01';
+import Scratch02 from './scratch/Scratch02';
+import Scratch03 from './scratch/Scratch03';
+import Scratch04 from './scratch/Scratch04';
+import Scratch05 from './scratch/Scratch05';
 import './App.css';
 
 interface QuizQuestion {
@@ -479,11 +485,83 @@ const CONCEPTS_DATA: ConceptData[] = [
         explanation: 'Chính xác! useCallback(fn, deps) được thiết kế chuyên biệt để bảo toàn tham chiếu ô nhớ RAM của Hàm giữa các lượt render.'
       }
     ]
+  },
+
+  // BUILD FROM SCRATCH SUITE (LEVEL 2)
+  {
+    id: 'scratch-01',
+    title: '✍️ Scratch 01: Stale Closure Timer',
+    module: 'BUILD FROM SCRATCH SUITE',
+    fullTheory: {
+      issue: 'Mở file src/scratch/Scratch01.tsx và tự tay gõ logic Stale Closure Timer từ trang trắng!',
+      underTheHood: ['Tự gõ logic setInterval, useState, useEffect và Functional Update.'],
+      bestPractice: 'Viết code sạch từ đầu.',
+      interviewTrap: ['Thử thách khả năng tự gõ code không nhìn mẫu.'],
+      docsLinks: [{ title: 'React.dev: State as a Snapshot', url: 'https://react.dev/learn/state-as-a-snapshot' }]
+    },
+    demoComponent: <Scratch01 />,
+    quiz: []
+  },
+  {
+    id: 'scratch-02',
+    title: '✍️ Scratch 02: Event Loop Order',
+    module: 'BUILD FROM SCRATCH SUITE',
+    fullTheory: {
+      issue: 'Mở file src/scratch/Scratch02.tsx và tự tay gõ thử nghiệm Event Loop từ trang trắng!',
+      underTheHood: ['Tự gõ Call Stack, Microtask Promise và Macrotask setTimeout.'],
+      bestPractice: 'Tự kiểm tra thứ tự thực thi.',
+      interviewTrap: ['Rèn luyện phản xạ Event Loop.'],
+      docsLinks: [{ title: 'MDN: Event Loop', url: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Event_loop' }]
+    },
+    demoComponent: <Scratch02 />,
+    quiz: []
+  },
+  {
+    id: 'scratch-03',
+    title: '✍️ Scratch 03: Scope, Hoisting & TDZ',
+    module: 'BUILD FROM SCRATCH SUITE',
+    fullTheory: {
+      issue: 'Mở file src/scratch/Scratch03.tsx và tự tay gõ logic kiểm tra Scope & Hoisting từ trang trắng!',
+      underTheHood: ['Tự gõ try...catch kiểm tra Block Scope và vòng lặp for(let i...).'],
+      bestPractice: 'Phân biệt rõ var vs let vs const.',
+      interviewTrap: ['Bẫy TDZ và Mutability.'],
+      docsLinks: [{ title: 'MDN: Scope', url: 'https://developer.mozilla.org/en-US/docs/Glossary/Scope' }]
+    },
+    demoComponent: <Scratch03 />,
+    quiz: []
+  },
+  {
+    id: 'scratch-04',
+    title: '✍️ Scratch 04: VDOM & Key Mechanics',
+    module: 'BUILD FROM SCRATCH SUITE',
+    fullTheory: {
+      issue: 'Mở file src/scratch/Scratch04.tsx và tự tay gõ logic List Rendering & Key Reset từ trang trắng!',
+      underTheHood: ['Tự render mảng với key={item.id} và đổi key để reset state.'],
+      bestPractice: 'Dùng ID duy nhất.',
+      interviewTrap: ['Key trap với index.'],
+      docsLinks: [{ title: 'React.dev: Rendering Lists', url: 'https://react.dev/learn/rendering-lists' }]
+    },
+    demoComponent: <Scratch04 />,
+    quiz: []
+  },
+  {
+    id: 'scratch-05',
+    title: '✍️ Scratch 05: Automatic Batching',
+    module: 'BUILD FROM SCRATCH SUITE',
+    fullTheory: {
+      issue: 'Mở file src/scratch/Scratch05.tsx và tự tay gõ thử nghiệm Batching & flushSync từ trang trắng!',
+      underTheHood: ['Tự gõ Updater Function và flushSync từ react-dom.'],
+      bestPractice: 'Ép Sync DOM render khi thực sự cần thiết.',
+      interviewTrap: ['Lầm tưởng batching trong React 18.'],
+      docsLinks: [{ title: 'React 18 Batching', url: 'https://github.com/reactwg/react-18/discussions/21' }]
+    },
+    demoComponent: <Scratch05 />,
+    quiz: []
   }
 ];
 
 export default function App() {
-  const [selectedConceptId, setSelectedConceptId] = useState<string>('06-referential-equality-memo');
+  const [selectedConceptId, setSelectedConceptId] = useState<string>('01-stale-closure');
   const [activeTab, setActiveTab] = useState<'theory' | 'demo' | 'quiz'>('theory');
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, number>>({});
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
@@ -524,7 +602,7 @@ export default function App() {
         <aside className="app-sidebar">
           <div className="sidebar-section-title">ROADMAP LESSONS (6/12 SESSIONS)</div>
           <nav className="concept-menu">
-            {CONCEPTS_DATA.filter(c => !c.id.startsWith('challenge')).map((concept) => (
+            {CONCEPTS_DATA.filter(c => !c.id.startsWith('challenge') && !c.id.startsWith('scratch')).map((concept) => (
               <button
                 key={concept.id}
                 className={`menu-item ${concept.id === selectedConceptId ? 'active' : ''}`}
@@ -555,6 +633,23 @@ export default function App() {
               </button>
             ))}
           </nav>
+
+          <div className="sidebar-section-title" style={{ marginTop: '20px' }}>✍️ BUILD FROM SCRATCH (LEVEL 2)</div>
+          <nav className="concept-menu">
+            {CONCEPTS_DATA.filter(c => c.id.startsWith('scratch')).map((concept) => (
+              <button
+                key={concept.id}
+                className={`menu-item ${concept.id === selectedConceptId ? 'active' : ''}`}
+                onClick={() => {
+                  setSelectedConceptId(concept.id);
+                  setActiveTab('theory');
+                }}
+              >
+                <div className="menu-item-module" style={{ color: '#10B981' }}>LEVEL 2 SCRATCH</div>
+                <div className="menu-item-title">{concept.title}</div>
+              </button>
+            ))}
+          </nav>
         </aside>
 
         {/* MAIN CONTENT AREA */}
@@ -579,12 +674,14 @@ export default function App() {
             >
               ⚡ 2. Live Demo (Bad vs Best)
             </button>
-            <button
-              className={`tab-btn ${activeTab === 'quiz' ? 'active' : ''}`}
-              onClick={() => setActiveTab('quiz')}
-            >
-              🎯 3. Thử thách Thực hành ({currentConcept.quiz.length} câu)
-            </button>
+            {currentConcept.quiz.length > 0 && (
+              <button
+                className={`tab-btn ${activeTab === 'quiz' ? 'active' : ''}`}
+                onClick={() => setActiveTab('quiz')}
+              >
+                🎯 3. Thử thách Thực hành ({currentConcept.quiz.length} câu)
+              </button>
+            )}
           </div>
 
           {/* TAB 1: THEORY & SYNTAX (FULL DETAILED VERSION) */}
