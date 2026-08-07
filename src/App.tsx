@@ -4,12 +4,14 @@ import EventLoopDemo from './concepts/02-event-loop/Demo';
 import ScopeHoistingDemo from './concepts/03-scope-hoisting-tdz/Demo';
 import ReconciliationDemo from './concepts/04-vdom-reconciliation-fiber/Demo';
 import BatchingDemo from './concepts/05-lifecycle-batching-react18/Demo';
+import ReferentialEqualityDemo from './concepts/06-referential-equality-memo/Demo';
 
 import Challenge01 from './exercises/Challenge01';
 import Challenge02 from './exercises/Challenge02';
 import Challenge03 from './exercises/Challenge03';
 import Challenge04 from './exercises/Challenge04';
 import Challenge05 from './exercises/Challenge05';
+import Challenge06 from './exercises/Challenge06';
 import './App.css';
 
 interface QuizQuestion {
@@ -270,25 +272,72 @@ const CONCEPTS_DATA: ConceptData[] = [
       }
     ]
   },
+  {
+    id: '06-referential-equality-memo',
+    title: '06. React.memo, useCallback & useMemo',
+    module: 'Module 2: React Engine & Re-render Mechanics',
+    fullTheory: {
+      issue: 'Mặc định khi Parent re-render, TOÀN BỘ Component con sẽ bị re-render theo. Tại sao truyền prop hàm onClick={() => {}} hoặc object {} lại làm PHÁ VỠ React.memo(Child)?',
+      underTheHood: [
+        '1. Referential Equality trong JS RAM: Function, Object, Array so sánh theo ĐỊA CHỈ Ô NHỚ RAM.',
+        '2. Parent re-render làm hàm onClick = () => {} được khởi tạo lại với ĐỊA CHỈ RAM MỚI TINH.',
+        '3. React.memo dùng Object.is(oldProps, newProps). Vì địa chỉ RAM mới khác địa chỉ RAM cũ ➔ Object.is trả về false ➔ Child VẪN BỊ RE-RENDER THỪA!',
+        '4. useCallback(fn, deps) giữ ổn định địa chỉ RAM của HÀM. useMemo(() => val, deps) giữ ổn định địa chỉ RAM của OBJECT/ARRAY.'
+      ],
+      comparisonTable: {
+        headers: ['Công cụ', 'Mục đích chính', 'Phép so sánh ngầm'],
+        rows: [
+          ['React.memo(Component)', 'Bọc Component con để bỏ qua re-render thừa', 'Object.is(prevProps, nextProps)'],
+          ['useCallback(fn, deps)', 'Giữ ổn định địa chỉ RAM của Hàm', 'Mảng phụ thuộc deps'],
+          ['useMemo(() => val, deps)', 'Giữ ổn định địa chỉ RAM Object hoặc cache tính toán', 'Mảng phụ thuộc deps']
+        ]
+      },
+      bestPractice: 'Chỉ bọc useCallback/useMemo khi truyền prop xuống Component con ĐÃ ĐƯỢC BỌC React.memo hoặc khi tính toán thuật toán nặng.',
+      interviewTrap: [
+        'Bọc useCallback ở khắp mọi nơi kể cả khi truyền xuống HTML Tag native như <button onClick={useCallback(...)}> (Over-optimization Trap!).',
+        'Quên bọc React.memo cho Child nhưng lại bọc useCallback cho Callback ở Parent.'
+      ],
+      mentalModel: [
+        'React.memo = Tấm lá chắn chống re-render thừa.',
+        'useCallback = Keo dán giữ cố định địa chỉ ô nhớ RAM của Hàm.',
+        'Over-optimization = Tốn RAM lưu mảng deps mà không đem lại lợi ích nào.'
+      ],
+      docsLinks: [
+        { title: 'React.dev: React.memo Guide', url: 'https://react.dev/reference/react/memo' },
+        { title: 'React.dev: useCallback Guide', url: 'https://react.dev/reference/react/useCallback' },
+        { title: 'React.dev: useMemo Guide', url: 'https://react.dev/reference/react/useMemo' }
+      ]
+    },
+    demoComponent: <ReferentialEqualityDemo />,
+    quiz: [
+      {
+        question: 'Tại sao truyền onClick={() => handleClick()} xuống <Child /> đã bọc React.memo lại vẫn làm Child bị re-render thừa?',
+        options: [
+          'A. Do React.memo bị lỗi',
+          'B. Do mỗi lần Parent re-render, arrow function mới được tạo ra với ĐỊA CHỈ Ô NHỚ RAM MỚI TINH làm Object.is(old, new) trả về false',
+          'C. Do onClick là thuộc tính bắt buộc của React'
+        ],
+        correctIndex: 1,
+        explanation: 'Chính xác! Kiểu dữ liệu tham chiếu (Function/Object) so sánh theo địa chỉ RAM. Hàm mới có địa chỉ RAM mới làm phá vỡ React.memo. Cần dùng useCallback để khắc phục!'
+      }
+    ]
+  },
 
   // HANDS-ON EXERCISES SUITE
   {
     id: 'challenge-01',
-    title: '🎯 THỬ THÁCH #01: Sửa 3 Bugs Tổng Hợp',
+    title: '🎯 THỬ THÁCH #01: Stale Closure & Deps',
     module: 'HANDS-ON EXERCISES SUITE',
     fullTheory: {
-      issue: 'Bài tập tổng hợp thực hành: Mở file src/exercises/Challenge01.tsx trên VS Code để tự tay sửa 3 lỗi bug kinh điển.',
+      issue: 'Mở file src/exercises/Challenge01.tsx để sửa lỗi Stale Closure Timer và quan sát luồng chạy của Dependency Array [] vs [count]!',
       underTheHood: [
-        'Bug 1 (Stale Closure): Timer kẹt ở số 1 do callback setTimeout/setInterval capture biến seconds = 0.',
-        'Bug 2 (State Queue & Batching): setCount(score + 1) 2 lần liên tiếp chỉ cộng 1 điểm.',
-        'Bug 3 (Key Trap): key={index} làm tráo đổi ô input khi xóa phần tử đầu mảng.'
+        'Stale Closure xảy ra khi callback capture biến state cũ. Dùng Functional Update (prev => prev + 1) để lấy state từ Queue.',
+        'Cleanup function của useEffect chạy trước khi Effect lượt sau kích hoạt.'
       ],
-      bestPractice: 'Sử dụng Functional Update (prev => prev + 1) và key={item.id} để sửa dứt điểm cả 3 bug.',
-      interviewTrap: [
-        'Bài tập Refactoring / Bug Fixing phổ biến nhất trong các vòng Code Assessment.'
-      ],
+      bestPractice: 'Dùng Functional Update và quản lý đúng mảng phụ thuộc deps.',
+      interviewTrap: ['Đoán nhầm clearInterval làm mất bộ đếm.'],
       docsLinks: [
-        { title: 'React.dev: Queueing State Updates', url: 'https://react.dev/learn/queueing-a-series-of-state-updates' }
+        { title: 'React.dev: State as a Snapshot', url: 'https://react.dev/learn/state-as-a-snapshot' }
       ]
     },
     demoComponent: <Challenge01 />,
@@ -306,12 +355,12 @@ const CONCEPTS_DATA: ConceptData[] = [
     title: '🎯 THỬ THÁCH #02: Dự Đoán Event Loop',
     module: 'HANDS-ON EXERCISES SUITE',
     fullTheory: {
-      issue: 'Mở file src/exercises/Challenge02.tsx để đọc code và điền thứ tự dự đoán in ra của Synchronous vs Microtask vs Macrotask!',
+      issue: 'Mở file src/exercises/Challenge02.tsx để đọc code và điền thứ tự dự đoán in ra của Synchronous vs Promise Body vs Microtask vs Macrotask!',
       underTheHood: [
-        'Synchronous Code (Call Stack) chạy trước ➔ Promise.then() (Microtask Queue) chạy tiếp ➔ setTimeout 0ms (Macrotask Queue) chạy sau cùng.'
+        'Call Stack Sync & thân new Promise() chạy trước ➔ Promise.then() (Microtask Queue) ➔ setTimeout 0ms (Macrotask Queue).'
       ],
-      bestPractice: 'Luôn ghi nhớ thứ tự: Synchronous -> Microtask -> Paint UI -> Macrotask.',
-      interviewTrap: ['Đoán setTimeout 0ms chạy trước Promise.then() vì lầm tưởng 0ms là chạy ngay lập tức.'],
+      bestPractice: 'Luôn nhớ thân new Promise() chạy ĐỒNG BỘ trên Call Stack.',
+      interviewTrap: ['Đoán setTimeout 0ms chạy trước Promise.then() vì lầm tưởng 0ms là chạy ngay.'],
       docsLinks: [
         { title: 'MDN: Event Loop Guide', url: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Event_loop' }
       ]
@@ -320,24 +369,25 @@ const CONCEPTS_DATA: ConceptData[] = [
     quiz: [
       {
         question: 'Thứ tự đúng của Challenge02 khi bấm nút là gì?',
-        options: ['A. 1 -> 4 -> 3 -> 2', 'B. 1 -> 2 -> 3 -> 4', 'C. 1 -> 3 -> 4 -> 2'],
+        options: ['A. Call Stack Sync -> Microtask -> Macrotask', 'B. Macrotask -> Microtask -> Call Stack', 'C. Microtask -> Macrotask -> Call Stack'],
         correctIndex: 0,
-        explanation: 'Chính xác! 1 và 2 là code đồng bộ -> 3 là Microtask (Promise) -> 4 là Macrotask (setTimeout).'
+        explanation: 'Chính xác! Call Stack đồng bộ chạy trước ➔ Microtask Promise ➔ Macrotask setTimeout.'
       }
     ]
   },
   {
     id: 'challenge-03',
-    title: '🎯 THỬ THÁCH #03: Fix Lỗi Scope & Hoisting',
+    title: '🎯 THỬ THÁCH #03: Scope, Hoisting & TDZ',
     module: 'HANDS-ON EXERCISES SUITE',
     fullTheory: {
-      issue: 'Mở file src/exercises/Challenge03.tsx để sửa từ khóa var thành let/const giúp nhốt biến trong Block Scope và in ra đúng 0, 1, 2 trong vòng lặp for!',
+      issue: 'Mở file src/exercises/Challenge03.tsx để thực thi thử nghiệm trọn bộ Scope, Hoisting & TDZ và Mutability của const!',
       underTheHood: [
-        'var có Function Scope nên bị leak ra ngoài ngoặc {} của if và bị dùng chung 1 biến i trong vòng lặp for.',
-        'let có Block Scope giúp nhốt biến trong ngoặc {} và tạo ô nhớ độc lập cho từng lượt lặp for.'
+        'var có Function Scope (lọt ra ngoài {}), let/const có Block Scope (bị nhốt trong {}).',
+        'var hoist = undefined, let/const hoist dính TDZ ReferenceError, Function Declaration hoist cả tên + thân hàm.',
+        'const cấm gán lại (TypeError) nhưng cho phép sửa thuộc tính Object (Mutation).'
       ],
-      bestPractice: 'Thay var x bằng let/const x và thay for(var i...) bằng for(let i...).',
-      interviewTrap: ['Nghĩ var i trong vòng lặp for có Block Scope.'],
+      bestPractice: 'Dùng const > let > Cấm dùng var.',
+      interviewTrap: ['Nghĩ const Object không cho phép sửa thuộc tính bên trong.'],
       docsLinks: [
         { title: 'MDN: Temporal Dead Zone (TDZ)', url: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/let#temporal_dead_zone_tdz' }
       ]
@@ -354,15 +404,16 @@ const CONCEPTS_DATA: ConceptData[] = [
   },
   {
     id: 'challenge-04',
-    title: '🎯 THỬ THÁCH #04: Fix Bẫy Key Reconciliation',
+    title: '🎯 THỬ THÁCH #04: Reconciliation & Key',
     module: 'HANDS-ON EXERCISES SUITE',
     fullTheory: {
-      issue: 'Mở file src/exercises/Challenge04.tsx để sửa key={index} thành key={user.uid} tránh lỗi tráo ô input khi xóa người dùng!',
+      issue: 'Mở file src/exercises/Challenge04.tsx để kiểm tra Key Trap key={user.uid} và cơ chế Resetting State Form bằng thuộc tính key!',
       underTheHood: [
-        'key={index} làm React nhầm lẫn phần tử mới với phần tử cũ khi mảng bị biến đổi index ➔ gán nhầm State/input của phần tử bị xóa cho phần tử bên dưới.'
+        'key={item.id} giúp Reconciliation định danh đúng từng phần tử.',
+        'Thay đổi key của Component ép React Unmount cây cũ và Mount cây mới tinh (Reset Form State).'
       ],
-      bestPractice: 'Luôn dùng key={user.uid} (ID cố định duy nhất).',
-      interviewTrap: ['Lạm dụng index làm key cho danh sách có tính năng thêm/xóa.'],
+      bestPractice: 'Luôn dùng key={item.id} cố định.',
+      interviewTrap: ['Lạm dụng key={index} cho danh sách có tính năng thêm/xóa.'],
       docsLinks: [
         { title: 'React.dev: Rendering Lists', url: 'https://react.dev/learn/rendering-lists' }
       ]
@@ -370,24 +421,25 @@ const CONCEPTS_DATA: ConceptData[] = [
     demoComponent: <Challenge04 />,
     quiz: [
       {
-        question: 'Thuộc tính key chuẩn khi render danh sách nên dùng giá trị nào?',
-        options: ['A. key={index}', 'B. key={Math.random()}', 'C. key={item.id}'],
-        correctIndex: 2,
-        explanation: 'Chính xác! Luôn dùng ID cố định duy nhất đại diện cho item dữ liệu.'
+        question: 'Muốn Reset hoàn toàn State nội bộ của 1 Component Form khi đổi ID, ta truyền thuộc tính nào?',
+        options: ['A. ref', 'B. key={id}', 'C. id'],
+        correctIndex: 1,
+        explanation: 'Chính xác! Thay đổi key của Component sẽ ép React Unmount component cũ và Mount component mới với state sạch ban đầu.'
       }
     ]
   },
   {
     id: 'challenge-05',
-    title: '🎯 THỬ THÁCH #05: Tắt Batching với flushSync',
+    title: '🎯 THỬ THÁCH #05: Batching & flushSync',
     module: 'HANDS-ON EXERCISES SUITE',
     fullTheory: {
-      issue: 'Mở file src/exercises/Challenge05.tsx bọc các lệnh update state bằng flushSync(() => { ... }) để ép React 18 Re-render ngay lập tức 2 lần tách biệt!',
+      issue: 'Mở file src/exercises/Challenge05.tsx để thử nghiệm Automatic Batching trong React 18 và dùng flushSync() để ép Sync DOM render!',
       underTheHood: [
-        'flushSync() ngắt cơ chế Automatic Batching và bắt React Fiber thực hiện Render Phase + Commit Phase ngay tại thời điểm gọi.'
+        'React 18 gom nhiều lệnh setState trong setTimeout thành 1 lượt re-render.',
+        'flushSync() ngắt batching và ép React Fiber thực hiện Commit Phase ngay tại chỗ.'
       ],
-      bestPractice: 'Dùng flushSync khi thực sự cần đọc kích thước DOM mới nhất trước dòng code tiếp theo.',
-      interviewTrap: ['Lạm dụng flushSync ở mọi nơi gây lãng phí hiệu năng re-render.'],
+      bestPractice: 'Dùng flushSync khi thực sự cần đọc kích thước DOM mới nhất ngay lập tức.',
+      interviewTrap: ['Lạm dụng flushSync ở mọi nơi gây lãng phí hiệu năng.'],
       docsLinks: [
         { title: 'React 18 Working Group: Automatic Batching', url: 'https://github.com/reactwg/react-18/discussions/21' }
       ]
@@ -401,11 +453,37 @@ const CONCEPTS_DATA: ConceptData[] = [
         explanation: 'Chính xác! flushSync là API được xuất từ gói react-dom.'
       }
     ]
+  },
+  {
+    id: 'challenge-06',
+    title: '🎯 THỬ THÁCH #06: Fix Re-render Thừa',
+    module: 'HANDS-ON EXERCISES SUITE',
+    fullTheory: {
+      issue: 'Mở file src/exercises/Challenge06.tsx trên VS Code để bọc useCallback và useMemo giúp ExpensiveChild (bọc React.memo) kháng Re-render thừa dứt điểm!',
+      underTheHood: [
+        'Component con bọc React.memo vẫn bị re-render nếu prop callback/object không dùng useCallback/useMemo vì bị đổi địa chỉ RAM.',
+        'useCallback(fn, []) giữ nguyên địa chỉ RAM của Hàm. useMemo(() => obj, []) giữ nguyên địa chỉ RAM của Object.'
+      ],
+      bestPractice: 'Chỉ bọc useCallback/useMemo khi truyền prop xuống Component con ĐÃ ĐƯỢC BỌC React.memo.',
+      interviewTrap: ['Bọc useCallback cho hàm truyền xuống native <button> (Over-optimization Trap!).'],
+      docsLinks: [
+        { title: 'React.dev: useCallback Guide', url: 'https://react.dev/reference/react/useCallback' }
+      ]
+    },
+    demoComponent: <Challenge06 />,
+    quiz: [
+      {
+        question: 'Muốn giữ nguyên địa chỉ ô nhớ RAM của một callback truyền xuống Component con bọc React.memo, ta dùng Hook nào?',
+        options: ['A. useMemo', 'B. useCallback', 'C. useRef'],
+        correctIndex: 1,
+        explanation: 'Chính xác! useCallback(fn, deps) được thiết kế chuyên biệt để bảo toàn tham chiếu ô nhớ RAM của Hàm giữa các lượt render.'
+      }
+    ]
   }
 ];
 
 export default function App() {
-  const [selectedConceptId, setSelectedConceptId] = useState<string>('01-stale-closure');
+  const [selectedConceptId, setSelectedConceptId] = useState<string>('06-referential-equality-memo');
   const [activeTab, setActiveTab] = useState<'theory' | 'demo' | 'quiz'>('theory');
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, number>>({});
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
@@ -444,7 +522,7 @@ export default function App() {
       <div className="app-container">
         {/* SIDEBAR NAVIGATION */}
         <aside className="app-sidebar">
-          <div className="sidebar-section-title">ROADMAP LESSONS (5/12 SESSIONS)</div>
+          <div className="sidebar-section-title">ROADMAP LESSONS (6/12 SESSIONS)</div>
           <nav className="concept-menu">
             {CONCEPTS_DATA.filter(c => !c.id.startsWith('challenge')).map((concept) => (
               <button
