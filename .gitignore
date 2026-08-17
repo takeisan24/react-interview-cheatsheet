@@ -1,3 +1,10 @@
+# Tài liệu cá nhân (CV, số liệu nội bộ) - repo này public
+docs/
+
+# State cục bộ của công cụ, không phải mã nguồn dự án
+.claude/
+.omc/
+
 # Logs
 logs
 *.log
